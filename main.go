@@ -14,9 +14,6 @@ func main() {
 	defer fd.Close()
 	b := Parse(fd)
 	for _, v := range b {
-		for _, p := range v.X() {
-			fmt.Println(p)
-		}
-		fmt.Println("")
+		fmt.Println(v)
 	}
 }

@@ -1,77 +1,70 @@
 package main
 
-type M [4][4]float64
-type V [4]float64
+type Matrix []Vector
+type Vector []float64
 
-func (s Surface) X() (m M) {
-	for x := 0; x < 4; x++ {
-		for y := 0; y < 4; y++ {
-			m[x][y] = s[x][y].X
-		}
+func (M Matrix) Rank() (u, v int) {
+	u = len(M)
+	if u > 0 {
+		v = len(M[0])
 	}
 	return
 }
 
-func (s Surface) Y() (m M) {
-	for x := 0; x < 4; x++ {
-		for y := 0; y < 4; y++ {
-			m[x][y] = s[x][y].Y
+func (M Matrix) Row(n int) Vector {
+	if u, _ := M.Rank(); n > u {
+		return nil
+	}
+	return M[n]
+}
+
+func (M Matrix) Column(n int) Vector {
+	if _, v := M.Rank(); n > v {
+		return nil
+	}
+	return M.Transpose().Row(n)
+}
+
+func (M Matrix) Transpose() Matrix {
+	u, v := M.Rank()
+	m := NewMatrix(v, u)
+	for i, V := range M {
+		for j, val := range V {
+			m[j][i] = val
 		}
+	}
+	return m
+}
+
+func NewMatrix(u, v int) Matrix {
+	m := make(Matrix, u)
+	for i := range m {
+		m[i] = make(Vector, v)
+	}
+	return m
+}
+
+func Rank(m Matrix) (c, l int) {
+	c = len(m)
+	if len(m) > 0 {
+		l = len(m[0])
 	}
 	return
 }
 
-func (s Surface) Z() (m M) {
-	for x := 0; x < 4; x++ {
-		for y := 0; y < 4; y++ {
-			m[x][y] = s[x][y].Z
-		}
+func PowerN(u float64, n int) []float64 {
+	if n < 1 {
+		return []float64{}
 	}
-	return
-}
-
-func (m M) T() (r M) {
-	for x, l := range m {
-		for y, v := range l {
-			r[y][x] = v
-		}
+	v := make([]float64, n)
+	v[n-1] = 1
+	for i := n - 1; i > 0; i-- {
+		v[i-1] = u * v[i]
 	}
-	return
-}
-
-func Power(u float64) (v V) {
-	v[3] = 1
-	v[2] = u * v[3]
-	v[1] = u * v[2]
-	v[0] = u * v[1]
-	return
+	return v
 }
 
 // TODO
 // x(u, v) = U * Mb * Gbx * T(Mb) * T(V)
-
-// Left multiplication
-func (v V) LMul(m M) (r M) {
-	return
-}
-
-// Matrix Multiplication
-func (m M) MMul(mm M) (r M) {
-	for x := 0; x < 4; x++ {
-		for y := 0; y < 4; y++ {
-		}
-	}
-	return
-}
-
-// Right multiplication
-func (m M) RMul(v V) (r V) {
-	return
-}
-
-func (v V) Sum() (r float64) {
-	for i := range v {
-		r += v[i]
-	}
-	return
-}
+// y(u, v) = U * Mb * Gby * T(Mb) * T(V)
+// z(u, v) = U * Mb * Gbz * T(Mb) * T(V)

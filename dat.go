@@ -11,10 +11,6 @@ type Vertex struct {
 	X, Y, Z float64
 }
 
-type Patch []int
-
-type Surface [4][4]Vertex
-
 type Bezier []Vertex
 
 func ParseVertex(s string) (v Vertex) {
@@ -28,7 +24,7 @@ func ParseVertex(s string) (v Vertex) {
 	return
 }
 
-func ParsePatch(s string) (p Patch) {
+func ParsePatch(s string) (p []int) {
 	f := strings.Split(s, ",")
 	for _, v := range f {
 		i, _ := strconv.ParseInt(v, 10, 64)
@@ -37,7 +33,7 @@ func ParsePatch(s string) (p Patch) {
 	return
 }
 
-func Parse(r io.Reader) (s []Surface) {
+func Parse(r io.Reader) (b []Bezier) {
 	scan := bufio.NewScanner(r)
 
 	if !scan.Scan() {
@@ -45,7 +41,7 @@ func Parse(r io.Reader) (s []Surface) {
 	}
 	n, _ := strconv.Atoi(scan.Text())
 
-	p := make([]Patch, n)
+	p := make([][]int, n)
 	for i := 0; i < n; i++ {
 		if !scan.Scan() {
 			return
@@ -66,12 +62,11 @@ func Parse(r io.Reader) (s []Surface) {
 		v[i] = ParseVertex(scan.Text())
 	}
 
-	s = make([]Surface, n)
+	b = make([]Bezier, n)
 	for i, patch := range p {
-		for x := 0; x < 4; x++ {
-			for y := 0; y < 4; y++ {
-				s[i][x][y] = v[patch[x*4+y]]
-			}
+		b[i] = make([]Vertex, n)
+		for j, x := range patch {
+			b[i][j] = v[x]
 		}
 	}
 
