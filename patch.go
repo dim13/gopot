@@ -11,6 +11,7 @@ func (p Patch) X() []float64 {
 	}
 	return f
 }
+
 func (p Patch) Y() []float64 {
 	f := make([]float64, len(p))
 	for i, v := range p {
