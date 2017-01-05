@@ -64,8 +64,8 @@ func Parse(r io.Reader) [][][]float64 {
 	patches := make([][][]float64, n)
 	for u, i := range indices {
 		patches[u] = make([][]float64, len(i))
-		for v, x := range i {
-			patches[u][v] = vertices[x]
+		for v, j := range i {
+			patches[u][v] = vertices[j]
 		}
 	}
 
