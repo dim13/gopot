@@ -7,11 +7,8 @@ import (
 	"strings"
 )
 
-type Vertex struct {
-	X, Y, Z float64
-}
-
-type Bezier [][]float64
+type Vertex struct{ X, Y, Z float64 }
+type Patch []Vertex
 
 func parseVertex(s string) []float64 {
 	f := strings.Split(s, ",")
@@ -22,7 +19,7 @@ func parseVertex(s string) []float64 {
 	return p
 }
 
-func parsePatch(s string) []int {
+func parseIndex(s string) []int {
 	f := strings.Split(s, ",")
 	p := make([]int, len(f))
 	for i, v := range f {
@@ -35,19 +32,21 @@ func parsePatch(s string) []int {
 func Parse(r io.Reader) [][][]float64 {
 	scan := bufio.NewScanner(r)
 
+	// first part, patch indices
 	if !scan.Scan() {
 		return nil
 	}
 	n, _ := strconv.Atoi(scan.Text())
 
-	patches := make([][]int, n)
-	for i := range patches {
+	indices := make([][]int, n)
+	for i := range indices {
 		if !scan.Scan() {
 			return nil
 		}
-		patches[i] = parsePatch(scan.Text())
+		indices[i] = parseIndex(scan.Text())
 	}
 
+	// second part, vertices
 	if !scan.Scan() {
 		return nil
 	}
@@ -61,13 +60,14 @@ func Parse(r io.Reader) [][][]float64 {
 		vertices[i] = parseVertex(scan.Text())
 	}
 
-	bezier := make([][][]float64, n)
-	for u, p := range patches {
-		bezier[u] = make([][]float64, len(p))
-		for v, i := range p {
-			bezier[u][v] = vertices[i]
+	// populate patches with vertices
+	patches := make([][][]float64, n)
+	for u, i := range indices {
+		patches[u] = make([][]float64, len(i))
+		for v, x := range i {
+			patches[u][v] = vertices[x]
 		}
 	}
 
-	return bezier
+	return patches
 }
