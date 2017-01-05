@@ -11,64 +11,63 @@ type Vertex struct {
 	X, Y, Z float64
 }
 
-type Bezier []Vertex
+type Bezier [][]float64
 
-func ParseVertex(s string) (v Vertex) {
-	ss := strings.Split(s, ",")
-	if len(ss) != 3 {
-		return
-	}
-	v.X, _ = strconv.ParseFloat(ss[0], 64)
-	v.Y, _ = strconv.ParseFloat(ss[1], 64)
-	v.Z, _ = strconv.ParseFloat(ss[2], 64)
-	return
-}
-
-func ParsePatch(s string) (p []int) {
+func parseVertex(s string) []float64 {
 	f := strings.Split(s, ",")
-	for _, v := range f {
-		i, _ := strconv.ParseInt(v, 10, 64)
-		p = append(p, int(i-1))
+	p := make([]float64, len(f))
+	for i, v := range f {
+		p[i], _ = strconv.ParseFloat(v, 64)
 	}
-	return
+	return p
 }
 
-func Parse(r io.Reader) (b []Bezier) {
+func parsePatch(s string) []int {
+	f := strings.Split(s, ",")
+	p := make([]int, len(f))
+	for i, v := range f {
+		x, _ := strconv.ParseInt(v, 10, 64)
+		p[i] = int(x - 1)
+	}
+	return p
+}
+
+func Parse(r io.Reader) [][][]float64 {
 	scan := bufio.NewScanner(r)
 
 	if !scan.Scan() {
-		return
+		return nil
 	}
 	n, _ := strconv.Atoi(scan.Text())
 
-	p := make([][]int, n)
-	for i := 0; i < n; i++ {
+	patches := make([][]int, n)
+	for i := range patches {
 		if !scan.Scan() {
-			return
+			return nil
 		}
-		p[i] = ParsePatch(scan.Text())
+		patches[i] = parsePatch(scan.Text())
 	}
 
 	if !scan.Scan() {
-		return
+		return nil
 	}
 	m, _ := strconv.Atoi(scan.Text())
 
-	v := make([]Vertex, m)
-	for i := 0; i < m; i++ {
+	vertices := make([][]float64, m)
+	for i := range vertices {
 		if !scan.Scan() {
-			return
+			return nil
 		}
-		v[i] = ParseVertex(scan.Text())
+		vertices[i] = parseVertex(scan.Text())
 	}
 
-	b = make([]Bezier, n)
-	for i, patch := range p {
-		b[i] = make([]Vertex, n)
-		for j, x := range patch {
-			b[i][j] = v[x]
+	bezier := make([][][]float64, n)
+	for u, p := range patches {
+		bezier[u] = make([][]float64, len(p))
+		for v, i := range p {
+			bezier[u][v] = vertices[i]
 		}
 	}
 
-	return
+	return bezier
 }
