@@ -7,13 +7,15 @@ import (
 	"strings"
 )
 
-func parseVertex(s string) []float64 {
+func parseVertex(s string) (v Vertex) {
 	f := strings.Split(s, ",")
-	p := make([]float64, len(f))
-	for i, v := range f {
-		p[i], _ = strconv.ParseFloat(v, 64)
+	if len(f) != 3 {
+		panic("invalid vertex")
 	}
-	return p
+	v.X, _ = strconv.ParseFloat(f[0], 64)
+	v.Y, _ = strconv.ParseFloat(f[1], 64)
+	v.Z, _ = strconv.ParseFloat(f[2], 64)
+	return v
 }
 
 func parseIndex(s string) []int {
@@ -26,7 +28,7 @@ func parseIndex(s string) []int {
 	return p
 }
 
-func Parse(r io.Reader) [][][]float64 {
+func Parse(r io.Reader) []Patch {
 	scan := bufio.NewScanner(r)
 
 	// first part, patch indices
@@ -49,7 +51,7 @@ func Parse(r io.Reader) [][][]float64 {
 	}
 	m, _ := strconv.Atoi(scan.Text())
 
-	vertices := make([][]float64, m)
+	vertices := make([]Vertex, m)
 	for i := range vertices {
 		if !scan.Scan() {
 			return nil
@@ -58,9 +60,9 @@ func Parse(r io.Reader) [][][]float64 {
 	}
 
 	// populate patches with vertices
-	patches := make([][][]float64, n)
+	patches := make([]Patch, n)
 	for u, i := range indices {
-		patches[u] = make([][]float64, len(i))
+		patches[u] = make([]Vertex, len(i))
 		for v, j := range i {
 			patches[u][v] = vertices[j]
 		}

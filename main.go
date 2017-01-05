@@ -12,8 +12,14 @@ func main() {
 		log.Fatal(err)
 	}
 	defer fd.Close()
-	b := Parse(fd)
-	for _, v := range b {
-		fmt.Println(v)
+
+	patches := Parse(fd)
+	for _, p := range patches {
+		for u := 0.0; u <= 1.0; u += 1.0 {
+			for v := 0.0; v <= 1.0; v += 1.0 {
+				fmt.Print(Calc(u, v, p))
+			}
+		}
+		fmt.Println("")
 	}
 }
