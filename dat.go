@@ -7,9 +7,6 @@ import (
 	"strings"
 )
 
-type Vertex struct{ X, Y, Z float64 }
-type Patch []Vertex
-
 func parseVertex(s string) []float64 {
 	f := strings.Split(s, ",")
 	p := make([]float64, len(f))
