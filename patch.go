@@ -56,15 +56,19 @@ func (v Vertex) RotZ(deg float64) Vertex {
 	return v
 }
 
+func (v Vertex) Zoom(zoom float64) Vertex {
+	v.X *= zoom
+	v.Y *= zoom
+	v.Z *= zoom
+	return v
+}
+
 func (v Vertex) Project() (int, int) {
-	dist := 1000.0
-	zoom := 1000.0
-	v = v.RotZ(-15).RotX(-60)
+	dist := 100000.0
+	v = v.Zoom(1000).RotZ(-15).RotX(-60)
 
 	v.X *= dist / (2*dist - v.Z)
 	v.Y *= dist / (2*dist - v.Z)
-	v.X *= zoom
-	v.Y *= zoom
 	v.X += width / 2
 	v.Y += height / 3
 	return int(v.X), int(v.Y)
