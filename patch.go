@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type Vertex struct{ X, Y, Z float64 }
 
 type Patch []Vertex
@@ -28,16 +30,37 @@ func (p Patch) Z() []float64 {
 	return f
 }
 
-func (v Vertex) RotX() Vertex {
-	v.Y = 0.5*v.Y + 0.866*v.Z
-	v.Z = 0.5*v.Z - 0.866*v.Y
+func rot(deg float64) (float64, float64) {
+	rad := deg * math.Pi / 180.0
+	return math.Sin(rad), math.Cos(rad)
+}
+
+func (v Vertex) RotX(deg float64) Vertex {
+	sin, cos := rot(deg)
+	v.Y = cos*v.Y - sin*v.Z
+	v.Z = sin*v.Y + cos*v.Z
+	return v
+}
+
+func (v Vertex) RotY(deg float64) Vertex {
+	sin, cos := rot(deg)
+	v.X = cos*v.X + sin*v.Z
+	v.Z = -sin*v.X + cos*v.Z
+	return v
+}
+
+func (v Vertex) RotZ(deg float64) Vertex {
+	sin, cos := rot(deg)
+	v.X = cos*v.X - sin*v.Y
+	v.Y = sin*v.X + cos*v.Y
 	return v
 }
 
 func (v Vertex) Project() (int, int) {
 	dist := 1000.0
 	zoom := 1000.0
-	v = v.RotX()
+	v = v.RotZ(-15).RotX(-60)
+
 	v.X *= dist / (2*dist - v.Z)
 	v.Y *= dist / (2*dist - v.Z)
 	v.X *= zoom
