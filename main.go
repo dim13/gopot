@@ -18,7 +18,7 @@ func main() {
 	out.Clear()
 	out.Enable()
 	defer out.Disable()
-	step := 1.0 / float64(10)
+	step := 1.0 / float64(5)
 	for _, p := range patches {
 		for u := 0.0; u <= 1.0; u += step {
 			out.PenDown()
