@@ -27,3 +27,22 @@ func (p Patch) Z() []float64 {
 	}
 	return f
 }
+
+func (v Vertex) RotX() Vertex {
+	v.Y = 0.5*v.Y + 0.866*v.Z
+	v.Z = 0.5*v.Z - 0.866*v.Y
+	return v
+}
+
+func (v Vertex) Project() (int, int) {
+	dist := 1000.0
+	zoom := 1000.0
+	v = v.RotX()
+	v.X *= dist / (2*dist - v.Z)
+	v.Y *= dist / (2*dist - v.Z)
+	v.X *= zoom
+	v.Y *= zoom
+	v.X += width / 2
+	v.Y += height / 3
+	return int(v.X), int(v.Y)
+}
