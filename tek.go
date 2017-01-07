@@ -60,7 +60,7 @@ func limit(val, max int) int {
 	return val
 }
 
-func (o *Out) Draw(x, y int) {
+func (o *Out) Plot(x, y int) {
 	x = limit(x, width)
 	y = limit(y, height)
 

@@ -25,7 +25,7 @@ func main() {
 			for v := 0.0; v <= 1.0; v += step {
 				vertex := Calc(u, v, p)
 				x, y := vertex.Project()
-				out.Draw(x, y)
+				out.Plot(x, y)
 			}
 			out.PenUp()
 
@@ -33,7 +33,7 @@ func main() {
 			for v := 0.0; v <= 1.0; v += step {
 				vertex := Calc(v, u, p)
 				x, y := vertex.Project()
-				out.Draw(x, y)
+				out.Plot(x, y)
 			}
 			out.PenUp()
 		}
