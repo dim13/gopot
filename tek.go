@@ -7,9 +7,9 @@ import (
 
 type Out struct {
 	io.Writer
-	hix, hiy, lox, loy, eb byte
-	xterm                  bool
-	height, width          int
+	hx, hy, lx, ly, eb byte
+	xterm              bool
+	height, width      int
 }
 
 func (o *Out) escString(s string) {
@@ -39,6 +39,7 @@ func (o Out) Enable() {
 
 func (o Out) Disable() {
 	if o.xterm {
+		//o.escString("[?38l")
 		o.writeByte(31)    // Text mode
 		o.writeByte(27, 3) // VT Page
 	}
@@ -66,32 +67,52 @@ func (o *Out) Dim() (w, h int) {
 	return o.width, o.height
 }
 
+// Table 13-4 Bytes Values for Encoding Coordinates
+// 		Tag Bits	Address Bits
+// Byte Name 	7	6	5	4	3	2	1
+// High Y	0	1	5 most significant bits of Y address
+// Extra	1	1		Y2	Y1	X2	X1
+// Low Y	1	1	5 intermediate bits of Y address
+// High X	0	1	5 most significant bits of X address
+// Low X	1	0	5 intermediate bits of X address
+
+// Table 13-5 Rules for Sending Short Address
+// Bytes Changed	Bytes Sent
+// High Y		Extra	Low Y	High X	Low X
+// High Y		Yes	No	No	No	Yes
+// Low Y		No	No	Yes	No	Yes
+// High X		No	No	Yes	Yes	Yes
+// Low X		No	No	No	No	Yes
+// Extra		No	Yes	Yes	No	Yes
+
+// Ref: http://www.vt100.net/docs/vt3xx-gp/chapter13.html
+
 func (o *Out) Plot(x, y int) {
 	x = limit(x, o.width)
 	y = limit(y, o.height)
 
-	hiy := byte(y>>7) & 0x1f
-	loy := byte(y>>2) & 0x1f
-	hix := byte(x>>7) & 0x1f
-	lox := byte(x>>2) & 0x1f
-	eb := byte(x&3) | (byte(y&3) << 2)
+	hy := byte(y>>7) & 0x1f
+	ly := byte(y>>2) & 0x1f
+	hx := byte(x>>7) & 0x1f
+	lx := byte(x>>2) & 0x1f
+	eb := (byte(y&3) << 2) | byte(x&3)
 
-	if hiy != o.hiy {
-		o.writeByte(hiy | 0x20)
+	if hy != o.hy {
+		o.writeByte(hy | 0x20)
 	}
 	if eb != o.eb {
 		o.writeByte(eb | 0x60)
 	}
-	if eb != o.eb || loy != o.loy || hix != o.hix {
-		o.writeByte(loy | 0x60)
+	if eb != o.eb || ly != o.ly || hx != o.hx {
+		o.writeByte(ly | 0x60)
 	}
-	if hix != o.hix {
-		o.writeByte(hix | 0x20)
+	if hx != o.hx {
+		o.writeByte(hx | 0x20)
 	}
-	o.writeByte(lox | 0x40)
-	o.hix = hix
-	o.hiy = hiy
-	o.lox = lox
-	o.loy = loy
+	o.writeByte(lx | 0x40)
+	o.hx = hx
+	o.hy = hy
+	o.lx = lx
+	o.ly = ly
 	o.eb = eb
 }

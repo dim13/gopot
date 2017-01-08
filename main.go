@@ -24,14 +24,12 @@ func main() {
 			for v := 0.0; v <= 1.0; v += step {
 				p.Calc(u, v).Project(out)
 			}
-			out.PenUp()
 		}
 		for u := 0.0; u <= 1.0; u += step {
 			out.PenDown()
 			for v := 0.0; v <= 1.0; v += step {
 				p.Calc(v, u).Project(out)
 			}
-			out.PenUp()
 		}
 	}
 }
