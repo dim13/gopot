@@ -98,22 +98,18 @@ func (o *Out) Plot(x, y int) {
 	lx := byte(x>>2) & 0x1f
 
 	if hy != o.hy {
-		o.writeByte(hy | 0x20)
+		o.writeByte(0x20 | hy)
 	}
-
 	if eb != o.eb {
-		o.writeByte(eb | 0x60)
+		o.writeByte(0x60 | eb)
 	}
-
 	if ly != o.ly || eb != o.eb || hx != o.hx {
-		o.writeByte(ly | 0x60)
+		o.writeByte(0x60 | ly)
 	}
-
 	if hx != o.hx {
-		o.writeByte(hx | 0x20)
+		o.writeByte(0x20 | hx)
 	}
-
-	o.writeByte(lx | 0x40)
+	o.writeByte(0x40 | lx)
 
 	o.hy = hy
 	o.eb = eb
