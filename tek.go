@@ -5,6 +5,12 @@ import (
 	"os"
 )
 
+const (
+	FF  = 12
+	ESC = 27
+	GS  = 29
+)
+
 type Out struct {
 	io.Writer
 	hx, hy, lx, ly, eb byte
@@ -13,7 +19,7 @@ type Out struct {
 }
 
 func (o *Out) escString(s string) {
-	o.Write([]byte{27})
+	o.Write([]byte{ESC})
 	o.Write([]byte(s))
 }
 
@@ -33,24 +39,25 @@ func NewOut(w io.Writer) *Out {
 func (o Out) Enable() {
 	if o.xterm {
 		o.escString("[?38h")
-		o.writeByte(27, 12) // Tek Page
+		o.writeByte(ESC, FF)  // Tek Page
+		o.writeByte(ESC, '`') // solid lines
 	}
 }
 
 func (o Out) Disable() {
 	if o.xterm {
 		//o.escString("[?38l")
-		o.writeByte(31)    // Text mode
-		o.writeByte(27, 3) // VT Page
+		o.writeByte(31)     // Text mode
+		o.writeByte(ESC, 3) // VT Page
 	}
 }
 
 func (o Out) PenUp() {
-	o.writeByte(29, 7)
+	o.writeByte(GS, 7)
 }
 
 func (o Out) PenDown() {
-	o.writeByte(29)
+	o.writeByte(GS)
 }
 
 func limit(val, max int) int {
