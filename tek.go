@@ -36,11 +36,14 @@ func NewOut(w io.Writer) *Out {
 	}
 }
 
+func (o Out) Clear() {
+	o.writeByte(ESC, FF) // Tek Page
+}
+
 func (o Out) Enable() {
 	if o.xterm {
 		o.escString("[?38h")
-		o.writeByte(ESC, FF)  // Tek Page
-		o.writeByte(ESC, '`') // solid lines
+		o.Clear()
 	}
 }
 
@@ -52,11 +55,7 @@ func (o Out) Disable() {
 	}
 }
 
-func (o Out) PenUp() {
-	o.writeByte(GS, 7)
-}
-
-func (o Out) PenDown() {
+func (o Out) Pen() {
 	o.writeByte(GS)
 }
 

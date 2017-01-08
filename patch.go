@@ -30,26 +30,26 @@ func (p Patch) Z() []float64 {
 	return f
 }
 
-func rot(deg float64) (float64, float64) {
-	rad := deg * math.Pi / 180.0
+func rot(deg int) (float64, float64) {
+	rad := float64(deg) * math.Pi / 180.0
 	return math.Sin(rad), math.Cos(rad)
 }
 
-func (v Vertex) RotX(deg float64) Vertex {
+func (v Vertex) RotX(deg int) Vertex {
 	sin, cos := rot(deg)
 	v.Y = cos*v.Y - sin*v.Z
 	v.Z = sin*v.Y + cos*v.Z
 	return v
 }
 
-func (v Vertex) RotY(deg float64) Vertex {
+func (v Vertex) RotY(deg int) Vertex {
 	sin, cos := rot(deg)
 	v.X = cos*v.X + sin*v.Z
 	v.Z = -sin*v.X + cos*v.Z
 	return v
 }
 
-func (v Vertex) RotZ(deg float64) Vertex {
+func (v Vertex) RotZ(deg int) Vertex {
 	sin, cos := rot(deg)
 	v.X = cos*v.X - sin*v.Y
 	v.Y = sin*v.X + cos*v.Y
@@ -63,9 +63,9 @@ func (v Vertex) Zoom(zoom float64) Vertex {
 	return v
 }
 
-func (v Vertex) Project(p Plotter) {
+func (v Vertex) Project(p Plotter, rx, ry, rz int) {
 	dist := 100000.0
-	v = v.Zoom(1000).RotZ(-15).RotX(-60)
+	v = v.Zoom(1000).RotZ(rz).RotY(ry).RotX(rx)
 	w, h := p.Dim()
 
 	v.X *= dist / (2*dist - v.Z)
