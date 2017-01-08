@@ -71,7 +71,7 @@ func (v Vertex) Project(p Plotter) {
 	v.X *= dist / (2*dist - v.Z)
 	v.Y *= dist / (2*dist - v.Z)
 	v.X += float64(w) / 2
-	v.Y += float64(h) / 2
+	v.Y += float64(h) / 3
 
 	p.Plot(int(v.X), int(v.Y))
 }

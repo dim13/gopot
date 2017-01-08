@@ -26,11 +26,10 @@ func main() {
 			}
 			out.PenUp()
 		}
-
-		for v := 0.0; v <= 1.0; v += step {
+		for u := 0.0; u <= 1.0; u += step {
 			out.PenDown()
-			for u := 0.0; u <= 1.0; u += step {
-				Calc(u, v, p).Project(out)
+			for v := 0.0; v <= 1.0; v += step {
+				Calc(v, u, p).Project(out)
 			}
 			out.PenUp()
 		}
