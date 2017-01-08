@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"io"
 	"os"
 )
@@ -12,51 +11,47 @@ const (
 )
 
 type Out struct {
-	*bufio.Writer
-	hix, hiy, lox, loy, eb int
+	io.Writer
+	hix, hiy, lox, loy, eb byte
 	xterm                  bool
+}
+
+func (o *Out) escString(s string) {
+	o.Write([]byte{27})
+	o.Write([]byte(s))
+}
+
+func (o *Out) writeByte(b ...byte) {
+	o.Write(b)
 }
 
 func NewOut(w io.Writer) *Out {
 	return &Out{
-		Writer: bufio.NewWriter(w),
+		Writer: w,
 		xterm:  os.Getenv("TERM") == "xterm",
 	}
 }
 
 func (o Out) Enable() {
 	if o.xterm {
-		o.WriteByte(0x1b)
-		o.WriteString("[?38h")
-		o.Flush()
+		o.escString("[?38h")
+		o.writeByte(27, 12) // Tek Page
 	}
 }
 
 func (o Out) Disable() {
 	if o.xterm {
-		o.WriteByte(0x1b)
-		o.WriteByte(0x03)
-		o.Flush()
+		o.writeByte(31)    // Text mode
+		o.writeByte(27, 3) // VT Page
 	}
 }
 
-func (o Out) Clear() {
-	o.Enable()
-	o.WriteByte(0x1b)
-	o.WriteByte(0x0c)
-	o.Disable()
-	o.Flush()
-}
-
 func (o Out) PenUp() {
-	o.WriteByte(0x1d)
-	o.WriteByte(0x07)
-	o.Flush()
+	o.writeByte(29, 7)
 }
 
 func (o Out) PenDown() {
-	o.WriteByte(0x1d)
-	o.Flush()
+	o.writeByte(29)
 }
 
 func limit(val, max int) int {
@@ -73,29 +68,28 @@ func (o *Out) Plot(x, y int) {
 	x = limit(x, width)
 	y = limit(y, height)
 
-	hix := (x >> 7) & 0x1f
-	hiy := (y >> 7) & 0x1f
-	lox := (x >> 2) & 0x1f
-	loy := (y >> 2) & 0x1f
-	eb := (x & 3) | ((y & 3) << 2)
+	hiy := byte(y>>7) & 0x1f
+	loy := byte(y>>2) & 0x1f
+	hix := byte(x>>7) & 0x1f
+	lox := byte(x>>2) & 0x1f
+	eb := byte(x&3) | (byte(y&3) << 2)
 
 	if hiy != o.hiy {
-		o.WriteByte(byte(hiy | 0x20))
+		o.writeByte(hiy | 0x20)
 	}
 	if eb != o.eb {
-		o.WriteByte(byte(eb | 0x60))
+		o.writeByte(eb | 0x60)
 	}
 	if eb != o.eb || loy != o.loy || hix != o.hix {
-		o.WriteByte(byte(loy | 0x60))
+		o.writeByte(loy | 0x60)
 	}
 	if hix != o.hix {
-		o.WriteByte(byte(hix | 0x20))
+		o.writeByte(hix | 0x20)
 	}
-	o.WriteByte(byte(lox | 0x40))
+	o.writeByte(lox | 0x40)
 	o.hix = hix
 	o.hiy = hiy
 	o.lox = lox
 	o.loy = loy
 	o.eb = eb
-	o.Flush()
 }

@@ -15,7 +15,6 @@ func main() {
 	patches := Parse(fd)
 
 	out := NewOut(os.Stdout)
-	out.Clear()
 	out.Enable()
 	defer out.Disable()
 	step := 1.0 / float64(5)
