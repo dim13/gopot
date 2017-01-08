@@ -78,12 +78,12 @@ func (o *Out) Dim() (w, h int) {
 
 // Table 13-5 Rules for Sending Short Address
 // Bytes Changed	Bytes Sent
-// High Y		Extra	Low Y	High X	Low X
+// 			High Y	Extra	Low Y	High X	Low X
 // High Y		Yes	No	No	No	Yes
+// Extra		No	Yes	Yes	No	Yes
 // Low Y		No	No	Yes	No	Yes
 // High X		No	No	Yes	Yes	Yes
 // Low X		No	No	No	No	Yes
-// Extra		No	Yes	Yes	No	Yes
 
 // Ref: http://www.vt100.net/docs/vt3xx-gp/chapter13.html
 
@@ -92,27 +92,32 @@ func (o *Out) Plot(x, y int) {
 	y = limit(y, o.height)
 
 	hy := byte(y>>7) & 0x1f
+	eb := (byte(y&3) << 2) | byte(x&3)
 	ly := byte(y>>2) & 0x1f
 	hx := byte(x>>7) & 0x1f
 	lx := byte(x>>2) & 0x1f
-	eb := (byte(y&3) << 2) | byte(x&3)
 
 	if hy != o.hy {
 		o.writeByte(hy | 0x20)
 	}
+
 	if eb != o.eb {
 		o.writeByte(eb | 0x60)
 	}
-	if eb != o.eb || ly != o.ly || hx != o.hx {
+
+	if ly != o.ly || eb != o.eb || hx != o.hx {
 		o.writeByte(ly | 0x60)
 	}
+
 	if hx != o.hx {
 		o.writeByte(hx | 0x20)
 	}
+
 	o.writeByte(lx | 0x40)
-	o.hx = hx
+
 	o.hy = hy
-	o.lx = lx
-	o.ly = ly
 	o.eb = eb
+	o.ly = ly
+	o.hx = hx
+	o.lx = lx
 }
