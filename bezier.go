@@ -33,7 +33,7 @@ func mult(U, V *mat64.Vector, Mb, Gb *mat64.Dense) float64 {
 	return mat64.Inner(U, m2, V)
 }
 
-func Calc(u, v float64, p Patch) (r Vertex) {
+func (p Patch) Calc(u, v float64) (r Vertex) {
 	U := Vector(u)
 	V := Vector(v)
 	Mb := Matrix(mb)
