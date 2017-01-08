@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
+	"os"
 )
 
 const (
@@ -13,22 +14,30 @@ const (
 type Out struct {
 	*bufio.Writer
 	hix, hiy, lox, loy, eb int
+	xterm                  bool
 }
 
 func NewOut(w io.Writer) *Out {
-	return &Out{Writer: bufio.NewWriter(w)}
+	return &Out{
+		Writer: bufio.NewWriter(w),
+		xterm:  os.Getenv("TERM") == "xterm",
+	}
 }
 
 func (o Out) Enable() {
-	o.WriteByte(0x1b)
-	o.WriteString("[?38h")
-	o.Flush()
+	if o.xterm {
+		o.WriteByte(0x1b)
+		o.WriteString("[?38h")
+		o.Flush()
+	}
 }
 
 func (o Out) Disable() {
-	o.WriteByte(0x1b)
-	o.WriteByte(0x03)
-	o.Flush()
+	if o.xterm {
+		o.WriteByte(0x1b)
+		o.WriteByte(0x03)
+		o.Flush()
+	}
 }
 
 func (o Out) Clear() {
