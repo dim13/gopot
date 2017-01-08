@@ -5,15 +5,11 @@ import (
 	"os"
 )
 
-const (
-	height = 3072
-	width  = 4096
-)
-
 type Out struct {
 	io.Writer
 	hix, hiy, lox, loy, eb byte
 	xterm                  bool
+	height, width          int
 }
 
 func (o *Out) escString(s string) {
@@ -29,6 +25,8 @@ func NewOut(w io.Writer) *Out {
 	return &Out{
 		Writer: w,
 		xterm:  os.Getenv("TERM") == "xterm",
+		height: 3072,
+		width:  4096,
 	}
 }
 
@@ -64,9 +62,13 @@ func limit(val, max int) int {
 	return val
 }
 
+func (o *Out) Dim() (w, h int) {
+	return o.width, o.height
+}
+
 func (o *Out) Plot(x, y int) {
-	x = limit(x, width)
-	y = limit(y, height)
+	x = limit(x, o.width)
+	y = limit(y, o.height)
 
 	hiy := byte(y>>7) & 0x1f
 	loy := byte(y>>2) & 0x1f

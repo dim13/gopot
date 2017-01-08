@@ -63,13 +63,15 @@ func (v Vertex) Zoom(zoom float64) Vertex {
 	return v
 }
 
-func (v Vertex) Project() (int, int) {
+func (v Vertex) Project(p Plotter) {
 	dist := 100000.0
 	v = v.Zoom(1000).RotZ(-15).RotX(-60)
+	w, h := p.Dim()
 
 	v.X *= dist / (2*dist - v.Z)
 	v.Y *= dist / (2*dist - v.Z)
-	v.X += width / 2
-	v.Y += height / 3
-	return int(v.X), int(v.Y)
+	v.X += float64(w) / 2
+	v.Y += float64(h) / 2
+
+	p.Plot(int(v.X), int(v.Y))
 }

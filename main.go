@@ -22,17 +22,15 @@ func main() {
 		for u := 0.0; u <= 1.0; u += step {
 			out.PenDown()
 			for v := 0.0; v <= 1.0; v += step {
-				vertex := Calc(u, v, p)
-				x, y := vertex.Project()
-				out.Plot(x, y)
+				Calc(u, v, p).Project(out)
 			}
 			out.PenUp()
+		}
 
+		for v := 0.0; v <= 1.0; v += step {
 			out.PenDown()
-			for v := 0.0; v <= 1.0; v += step {
-				vertex := Calc(v, u, p)
-				x, y := vertex.Project()
-				out.Plot(x, y)
+			for u := 0.0; u <= 1.0; u += step {
+				Calc(u, v, p).Project(out)
 			}
 			out.PenUp()
 		}
