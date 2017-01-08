@@ -20,19 +20,27 @@ func main() {
 	plot(out, patches)
 }
 
+func steps(n int) []float64 {
+	st := make([]float64, n+1)
+	for i := 0; i <= n; i++ {
+		st[i] = float64(i) * 1.0 / float64(n)
+	}
+	return st
+}
+
 func plot(out Plotter, patches []Patch) {
 	out.Clear()
-	step := 1.0 / float64(5)
+	st := steps(5)
 	for _, p := range patches {
-		for u := 0.0; u <= 1.0; u += step {
+		for _, u := range st {
 			out.Pen()
-			for v := 0.0; v <= 1.0; v += step {
+			for _, v := range st {
 				p.Calc(u, v).Project(out, -60, 0, -15)
 			}
 		}
-		for u := 0.0; u <= 1.0; u += step {
+		for _, u := range st {
 			out.Pen()
-			for v := 0.0; v <= 1.0; v += step {
+			for _, v := range st {
 				p.Calc(v, u).Project(out, -60, 0, -15)
 			}
 		}
