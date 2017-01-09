@@ -29,7 +29,6 @@ func steps(n int) []float64 {
 }
 
 func plot(out Plotter, patches []Patch) {
-	out.Clear()
 	st := steps(5)
 	for _, p := range patches {
 		for _, u := range st {

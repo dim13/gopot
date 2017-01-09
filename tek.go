@@ -8,7 +8,10 @@ import (
 const (
 	FF  = 12
 	ESC = 27
-	GS  = 29
+	FS  = 28 // point plot
+	GS  = 29 // graph and dark vector
+	RS  = 30 // incremental plot
+	US  = 31 // alpha mode
 )
 
 type Out struct {
@@ -43,14 +46,13 @@ func (o Out) Clear() {
 func (o Out) Enable() {
 	if o.xterm {
 		o.escString("[?38h")
-		o.Clear()
 	}
+	o.Clear()
 }
 
 func (o Out) Disable() {
+	o.writeByte(US) // Text mode
 	if o.xterm {
-		//o.escString("[?38l")
-		o.writeByte(31)     // Text mode
 		o.writeByte(ESC, 3) // VT Page
 	}
 }
