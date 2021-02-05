@@ -14,24 +14,24 @@ const (
 	US  = 31 // alpha mode
 )
 
-type Out struct {
+type Tek struct {
 	io.Writer
 	hx, hy, lx, ly, eb byte
 	xterm              bool
 	height, width      int
 }
 
-func (o *Out) escString(s string) {
-	o.Write([]byte{ESC})
-	o.Write([]byte(s))
+func (t *Tek) escString(s string) {
+	t.Write([]byte{ESC})
+	t.Write([]byte(s))
 }
 
-func (o *Out) writeByte(b ...byte) {
-	o.Write(b)
+func (t *Tek) writeByte(b ...byte) {
+	t.Write(b)
 }
 
-func NewOut(w io.Writer) *Out {
-	return &Out{
+func NewTek(w io.Writer) *Tek {
+	return &Tek{
 		Writer: w,
 		xterm:  os.Getenv("TERM") == "xterm",
 		height: 3072,
@@ -39,26 +39,26 @@ func NewOut(w io.Writer) *Out {
 	}
 }
 
-func (o Out) Clear() {
-	o.writeByte(ESC, FF) // Tek Page
+func (t Tek) Clear() {
+	t.writeByte(ESC, FF) // Tek Page
 }
 
-func (o Out) Enable() {
-	if o.xterm {
-		o.escString("[?38h")
+func (t Tek) Enable() {
+	if t.xterm {
+		t.escString("[?38h")
 	}
-	o.Clear()
+	t.Clear()
 }
 
-func (o Out) Disable() {
-	o.writeByte(US) // Text mode
-	if o.xterm {
-		o.writeByte(ESC, 3) // VT Page
+func (t Tek) Disable() {
+	t.writeByte(US) // Text mode
+	if t.xterm {
+		t.writeByte(ESC, 3) // VT Page
 	}
 }
 
-func (o Out) Pen() {
-	o.writeByte(GS)
+func (t Tek) Pen() {
+	t.writeByte(GS)
 }
 
 func limit(val, max int) int {
@@ -71,8 +71,8 @@ func limit(val, max int) int {
 	return val
 }
 
-func (o *Out) Dim() (w, h int) {
-	return o.width, o.height
+func (t *Tek) Dim() (w, h int) {
+	return t.width, t.height
 }
 
 // Table 13-4 Bytes Values for Encoding Coordinates
@@ -95,9 +95,9 @@ func (o *Out) Dim() (w, h int) {
 
 // Ref: http://www.vt100.net/docs/vt3xx-gp/chapter13.html
 
-func (o *Out) Plot(x, y int) {
-	x = limit(x, o.width)
-	y = limit(y, o.height)
+func (t *Tek) Plot(x, y int) {
+	x = limit(x, t.width)
+	y = limit(y, t.height)
 
 	hy := byte(y>>7) & 0x1f
 	eb := (byte(y&3) << 2) | byte(x&3)
@@ -105,23 +105,23 @@ func (o *Out) Plot(x, y int) {
 	hx := byte(x>>7) & 0x1f
 	lx := byte(x>>2) & 0x1f
 
-	if hy != o.hy {
-		o.writeByte(0x20 | hy)
+	if hy != t.hy {
+		t.writeByte(0x20 | hy)
 	}
-	if eb != o.eb {
-		o.writeByte(0x60 | eb)
+	if eb != t.eb {
+		t.writeByte(0x60 | eb)
 	}
-	if ly != o.ly || eb != o.eb || hx != o.hx {
-		o.writeByte(0x60 | ly)
+	if ly != t.ly || eb != t.eb || hx != t.hx {
+		t.writeByte(0x60 | ly)
 	}
-	if hx != o.hx {
-		o.writeByte(0x20 | hx)
+	if hx != t.hx {
+		t.writeByte(0x20 | hx)
 	}
-	o.writeByte(0x40 | lx)
+	t.writeByte(0x40 | lx)
 
-	o.hy = hy
-	o.eb = eb
-	o.ly = ly
-	o.hx = hx
-	o.lx = lx
+	t.hy = hy
+	t.eb = eb
+	t.ly = ly
+	t.hx = hx
+	t.lx = lx
 }

@@ -14,7 +14,7 @@ func main() {
 
 	patches := Parse(fd)
 
-	out := NewOut(os.Stdout)
+	out := NewTek(os.Stdout)
 	out.Enable()
 	defer out.Disable()
 	plot(out, patches)
