@@ -1,4 +1,4 @@
-module dim13.org/gopot
+module github.com/dim13/gopot
 
 go 1.16
 
